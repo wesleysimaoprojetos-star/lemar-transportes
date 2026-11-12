@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lemar Transportes · Operação Embu Drop&Hook</title>
+  <style>
+    :root {
+      --lemar-dark: #0d0f12;
+      --lemar-yellow: #facc15;
+      --lemar-yellow-hover: #eab308;
+      --card-bg: #121417;
+      --border: #2d3748;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --danger: #ef4444;
+      --blue: #3b82f6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--lemar-dark); color: var(--text); padding-bottom: 50px; -webkit-font-smoothing: antialiased; }
+
+    header {
+      background: #0d0f12;
+      border-bottom: 3px solid var(--lemar-yellow);
+      padding: 0.9rem 1rem;
+      text-align: center;
+    }
+    .brand-title { font-size: 1.15rem; font-weight: 800; letter-spacing: 1px; color: var(--lemar-yellow); }
+    .brand-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+    .container { width: 100%; max-width: 620px; margin: 1rem auto; padding: 0 0.85rem; }
+    .tela { display: none; }
+    .tela.active { display: block; }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 1.15rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr; gap: 0.65rem; }
+    @media (min-width: 480px) {
+      .form-row { grid-template-columns: 1fr 1fr; }
+    }
+
+    label { font-size: 0.82rem; font-weight: 600; color: #d1d5db; }
+    input, select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      background: #121417;
+      color: #fff;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--lemar-yellow); }
+
+    .uppercase-input { text-transform: uppercase; font-weight: 700; }
+
+    .btn {
+      width: 100%;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: 0.2s;
+    }
+    .btn-carregar { background: var(--lemar-yellow); color: #000; margin-top: 0.4rem; }
+    .btn-carregar:hover { background: var(--lemar-yellow-hover); }
+    .btn-descarregar { background: #2d3748; color: #fff; border: 1px solid #4a5568; margin-top: 0.4rem; }
+    .btn-descarregar:hover { background: #1a202c; }
+    .btn-liberar { background: var(--danger); color: white; padding: 0.45rem 0.85rem; font-size: 0.8rem; width: auto; }
+    .btn-whats-item { background: #128c7e; color: white; padding: 0.45rem 0.75rem; font-size: 0.78rem; width: auto; border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem; font-weight: 700; }
+    .btn-excel { background: #107c41; color: white; width: auto; padding: 0.55rem 0.9rem; font-size: 0.8rem; }
+    .btn-link-foto { background: none; border: 1px solid var(--lemar-yellow); color: var(--lemar-yellow); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
+
+    .camera-btn-box {
+      border: 2px dashed #4b5563;
+      border-radius: 6px;
+      padding: 0.9rem;
+      text-align: center;
+      background: #161a20;
+      cursor: pointer;
+    }
+    .camera-btn-box label { cursor: pointer; color: var(--lemar-yellow); display: block; font-weight: 700; font-size: 0.95rem; }
+
+    .preview-foto {
+      width: 100%;
+      border-radius: 6px;
+      display: none;
+      margin-top: 0.6rem;
+      border: 1px solid var(--border);
+    }
+
+    .item-doca {
+      background: #161a22;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--lemar-yellow);
+      border-radius: 6px;
+      padding: 0.85rem;
+      margin-bottom: 0.85rem;
+    }
+    .item-doca.descarregar { border-left-color: var(--blue); }
+
+    .badge-tipo {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .badge-carregar { background: #fef08a; color: #854d0e; }
+    .badge-descarregar { background: #dbeafe; color: #1e40af; }
+
+    .btn-placa-foto {
+      background: none;
+      border: none;
+      color: var(--lemar-yellow);
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    .sub-nav {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      overflow-x: auto;
+    }
+    .sub-btn {
+      flex: 1;
+      padding: 0.6rem 0.4rem;
+      border: 1px solid var(--border);
+      background: #161a22;
+      color: var(--muted);
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+    .sub-btn.active {
+      background: var(--lemar-yellow);
+      color: #000;
+      border-color: var(--lemar-yellow);
+    }
+
+    .table-container { width: 100%; overflow-x: auto; }
+    table.excel-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+    table.excel-table th, table.excel-table td {
+      padding: 0.6rem 0.5rem;
+      border: 1px solid var(--border);
+    }
+    table.excel-table th { background: #161a22; color: var(--lemar-yellow); }
+
+    .tag-item {
+      background: #232936;
+      border: 1px solid #3b4252;
+      padding: 0.5rem 0.8rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+    .btn-del-tag { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1.1rem; font-weight: bold; }
+
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+    }
+    @media(min-width: 480px) {
+      .dash-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .dash-card {
+      background: #161a22;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .dash-card-title { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.4rem; }
+    .dash-card-value { font-size: 1.05rem; color: var(--lemar-yellow); font-weight: 800; }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.88);
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      max-width: 480px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .link-gerenciar { color: var(--lemar-yellow); text-decoration: underline; cursor: pointer; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-title">LEMAR TRANSPORTES</div>
+    <div class="brand-sub">Operação Embu Drop&Hook</div>
+  </header>
+
+  <div class="container">
+    
+    <!-- TELA 1: MANOBRA E DOCAGEM -->
+    <section id="tela-manobra" class="tela active">
+      <div class="card">
+        <div class="card-title">
+          <span>🚛 Registrar Docagem</span>
+          <span id="relogio-topo" style="font-size:0.8rem; color:var(--lemar-yellow);"></span>
+        </div>
+
+        <form id="form-docar" onsubmit="event.preventDefault();">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cavalo de Manobra *</label>
+              <select id="man-cavalo" required>
+                <option value="FRC3C97">FRC3C97</option>
+                <option value="CRX3F42">CRX3F42</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Placa Carreta *</label>
+              <input type="text" id="man-carreta" class="uppercase-input" list="dl-carretas" placeholder="Ex: UOM5A64" required oninput="this.value = this.value.toUpperCase()">
+              <datalist id="dl-carretas"></datalist>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Doca *</label>
+              <input type="text" id="man-doca" class="uppercase-input" list="dl-docas" placeholder="Ex: 02 ou 04" required oninput="this.value = this.value.toUpperCase()">
+              <datalist id="dl-docas"></datalist>
+            </div>
+            <div class="form-group">
+              <label>Manobrista *</label>
+              <input type="text" id="man-operador" list="dl-manobristas" placeholder="Nome do manobrista" required>
+              <datalist id="dl-manobristas"></datalist>
+            </div>
+          </div>
+
+          <!-- CÂMERA -->
+          <div class="form-group">
+            <label>Foto da Carreta *</label>
+            <div class="camera-btn-box" onclick="document.getElementById('foto-entrada').click()">
+              <label>📸 Abrir Câmera e Tirar Foto</label>
+              <input type="file" id="foto-entrada" accept="image/*" capture="environment" style="display:none;" onchange="processarFotoChecklist(event, 'entrada')">
+            </div>
+            <div id="status-foto-entrada" style="font-size:0.8rem; font-weight:700; color:var(--lemar-yellow); text-align:center; margin-top:0.3rem; display:none;"></div>
+            <img id="preview-entrada" class="preview-foto" alt="Carreta Docada">
+          </div>
+
+          <!-- BOTÕES DE DOCAR + ENVIAR WHATS -->
+          <div style="display:flex; flex-direction:column; gap:0.4rem; margin-top:0.6rem;">
+            <button type="button" class="btn btn-carregar" onclick="confirmarDocagem('Carregar')">
+              🚛 DOCAR P/ CARREGAR + ENVIAR WHATS
+            </button>
+            <button type="button" class="btn btn-descarregar" onclick="confirmarDocagem('Descarregar')">
+              🚛 DOCAR P/ DESCARREGAR + ENVIAR WHATS
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- CARRETAS ATIVAS EM DOCA -->
+      <div class="card">
+        <div class="card-title">
+          <span>⏱️ Carretas em Doca</span>
+        </div>
+        <p style="font-size:0.75rem; color:var(--muted); margin-bottom: 0.6rem;">
+          💡 Toque na placa para ver a foto carimbada ou no botão verde para compartilhar no Grupo Meli.
+        </p>
+        <div id="lista-ativas"></div>
+      </div>
+
+      <footer>
+        Lemar Transportes · Operação Embu Drop&Hook · <span class="link-gerenciar" onclick="abrirGerenciarCadastros()">Gerenciar cadastros</span>
+      </footer>
+    </section>
+
+    <!-- TELA 2: GERENCIAR CADASTROS -->
+    <section id="tela-gerenciar" class="tela">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <h2 style="font-size:1.05rem; color:var(--lemar-yellow);">Gerenciar Cadastros</h2>
+        <button type="button" class="btn" style="width:auto; padding:0.4rem 0.8rem; font-size:0.8rem; background:#374151; color:#fff;" onclick="voltarManobra()">
+          ⬅ Voltar para Manobra
+        </button>
+      </div>
+
+      <div class="sub-nav">
+        <button id="btn-sub-dash" class="sub-btn active" onclick="trocarSubAba('sub-dash')">📈 Dashboard</button>
+        <button id="btn-sub-planilha" class="sub-btn" onclick="trocarSubAba('sub-planilha')">📊 Planilha</button>
+        <button id="btn-sub-carretas" class="sub-btn" onclick="trocarSubAba('sub-carretas')">🚛 Carretas</button>
+        <button id="btn-sub-manobristas" class="sub-btn" onclick="trocarSubAba('sub-manobristas')">👤 Manobristas</button>
+      </div>
+
+      <!-- SUB-TELA 0: DASHBOARD -->
+      <div id="sub-dash">
+        <div class="card">
+          <div class="card-title">📊 Métricas Semanais (%)</div>
+          <div class="dash-grid">
+            <div class="dash-card">
+              <div class="dash-card-title">Manobrista Destaque</div>
+              <div class="dash-card-value" id="dash-top-manobrista">-</div>
+            </div>
+            <div class="dash-card">
+              <div class="dash-card-title">Veículo / Carreta Mais Frequente</div>
+              <div class="dash-card-value" id="dash-top-carreta">-</div>
+            </div>
+            <div class="dash-card" style="grid-column: 1 / -1;">
+              <div class="dash-card-title">Volume por Semana (%)</div>
+              <div class="dash-card-value" id="dash-pico-horario" style="font-size:0.95rem; font-weight:700;">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TELA A: PLANILHA DE DOCAS -->
+      <div id="sub-planilha" style="display:none;">
+        <div class="card">
+          <div class="card-title">
+            <span>Relatório de Docas & Liberações</span>
+            <button type="button" class="btn btn-excel" onclick="baixarPlanilhaExcel()">
+              📥 Baixar Excel (.csv)
+            </button>
+          </div>
+          <div class="table-container">
+            <table class="excel-table" id="tbl-relatorio">
+              <thead>
+                <tr>
+                  <th>Placa</th>
+                  <th>Doca</th>
+                  <th>Operação</th>
+                  <th>Data/Hora Docagem</th>
+                  <th>Foto Doca</th>
+                  <th>Data/Hora Saída</th>
+                  <th>Foto Saída</th>
+                  <th>Tempo em Doca</th>
+                  <th>Cavalo</th>
+                  <th>Manobrista</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TELA B: CARRETAS -->
+      <div id="sub-carretas" style="display:none;">
+        <div class="card">
+          <div class="card-title">Cadastrar Carreta</div>
+          <form onsubmit="cadastrarCarretaManual(event)" style="display:flex; gap:0.5rem;">
+            <input type="text" id="nova-carreta-placa" class="uppercase-input" placeholder="Placa Carreta" required oninput="this.value = this.value.toUpperCase()">
+            <button type="submit" class="btn btn-carregar" style="width:auto; margin:0; padding:0 1.2rem;">Adicionar</button>
+          </form>
+        </div>
+        <div class="card">
+          <div class="card-title">Carretas Cadastradas</div>
+          <div id="lista-carretas-base"></div>
+        </div>
+      </div>
+
+      <!-- SUB-TELA C: MANOBRISTAS -->
+      <div id="sub-manobristas" style="display:none;">
+        <div class="card">
+          <div class="card-title">Cadastrar Manobrista</div>
+          <form onsubmit="cadastrarManobristaManual(event)" style="display:flex; gap:0.5rem;">
+            <input type="text" id="novo-manobrista-nome" placeholder="Nome do Manobrista" required>
+            <button type="submit" class="btn btn-carregar" style="width:auto; margin:0; padding:0 1.2rem;">Adicionar</button>
+          </form>
+        </div>
+        <div class="card">
+          <div class="card-title">Manobristas Cadastrados</div>
+          <div id="lista-manobristas-base"></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- MODAL DE LIBERAÇÃO DE DOCA -->
+  <div id="modal-liberar" class="modal-overlay">
+    <div class="modal-content">
+      <div class="card-title">Liberar Doca</div>
+      <div class="camera-btn-box" onclick="document.getElementById('foto-saida').click()" style="margin-bottom:0.75rem;">
+        <label>📸 Tirar Foto da Liberação</label>
+        <input type="file" id="foto-saida" accept="image/*" capture="environment" style="display:none;" onchange="processarFotoChecklist(event, 'saida')">
+      </div>
+      <div id="status-foto-saida" style="font-size:0.8rem; font-weight:700; color:var(--lemar-yellow); text-align:center; margin-top:0.3rem; display:none;"></div>
+      <img id="preview-saida" class="preview-foto" style="margin-bottom:0.75rem;" alt="Foto Liberação">
+
+      <button type="button" id="btn-concluir-liberacao" class="btn btn-carregar" style="display:none;" onclick="concluirLiberacao()">
+        🚛 Confirmar Liberação na Planilha
+      </button>
+
+      <button type="button" class="btn" style="background:#2e3540; color:#fff; margin-top:0.5rem;" onclick="fecharModalLiberar()">
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL PARA EXIBIR FOTO AMPLIADA -->
+  <div id="modal-foto" class="modal-overlay" onclick="fecharModalFoto()">
+    <div class="modal-content" style="text-align:center;" onclick="event.stopPropagation()">
+      <div class="card-title">Visualizar Imagem <button type="button" class="btn" style="width:auto; padding:0.2rem 0.5rem; font-size:0.7rem;" onclick="fecharModalFoto()">X</button></div>
+      <img id="img-ampliada" style="width:100%; border-radius:6px; margin-top:0.5rem;" alt="Foto Ampliada">
+    </div>
+  </div>
+
+  <canvas id="canvas-carimbo" style="display:none;"></canvas>
+
+  <script>
+    let carretasAtivas = JSON.parse(localStorage.getItem('lemar_ativas')) || [];
+    let historicoDocas = JSON.parse(localStorage.getItem('lemar_historico')) || [];
+    let baseCarretas = JSON.parse(localStorage.getItem('lemar_base_carretas')) || ['UOM5A64', 'ABC1D23'];
+    let baseManobristas = JSON.parse(localStorage.getItem('lemar_base_manobristas')) || ['João Silva', 'Carlos Souza'];
+
+    let fotoEntradaBase64 = null;
+    let fotoSaidaBase64 = null;
+    let indiceCarretaLiberando = null;
+
+    window.onload = function() {
+      atualizarRelogio();
+      setInterval(atualizarRelogio, 1000);
+      atualizarListasDatalist();
+      renderizarCarretasAtivas();
+      renderizarPlanilhaRelatorio();
+      renderizarBasesCadastros();
+      atualizarDashboard();
+    };
+
+    function atualizarRelogio() {
+      const agora = new Date();
+      document.getElementById('relogio-topo').innerText = agora.toLocaleTimeString('pt-BR');
+    }
+
+    function atualizarListasDatalist() {
+      const dlCarretas = document.getElementById('dl-carretas');
+      dlCarretas.innerHTML = baseCarretas.map(c => `<option value="${c}">`).join('');
+
+      const dlManobristas = document.getElementById('dl-manobristas');
+      dlManobristas.innerHTML = baseManobristas.map(m => `<option value="${m}">`).join('');
+    }
+
+    function abrirGerenciarCadastros() {
+      document.getElementById('tela-manobra').classList.remove('active');
+      document.getElementById('tela-gerenciar').classList.add('active');
+      renderizarBasesCadastros();
+      renderizarPlanilhaRelatorio();
+      atualizarDashboard();
+    }
+
+    function voltarManobra() {
+      document.getElementById('tela-gerenciar').classList.remove('active');
+      document.getElementById('tela-manobra').classList.add('active');
+    }
+
+    function trocarSubAba(abaId) {
+      ['sub-dash', 'sub-planilha', 'sub-carretas', 'sub-manobristas'].forEach(id => {
+        document.getElementById(id).style.display = (id === abaId) ? 'block' : 'none';
+      });
+      ['btn-sub-dash', 'btn-sub-planilha', 'btn-sub-carretas', 'btn-sub-manobristas'].forEach(id => {
+        document.getElementById(id).classList.remove('active');
+      });
+      document.getElementById('btn-' + abaId).classList.add('active');
+      if (abaId === 'sub-dash') atualizarDashboard();
+    }
+
+    function processarFotoChecklist(event, tipo) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const placaInput = document.getElementById('man-carreta').value.trim().toUpperCase() || 'SEM PLACA';
+      const docaInput = document.getElementById('man-doca').value.trim().toUpperCase() || 'S/D';
+      const dataHora = new Date().toLocaleString('pt-BR');
+
+      let placaAlvo = placaInput;
+      let docaAlvo = docaInput;
+
+      if (tipo === 'saida' && indiceCarretaLiberando !== null) {
+        placaAlvo = carretasAtivas[indiceCarretaLiberando].placa;
+        docaAlvo = carretasAtivas[indiceCarretaLiberando].doca;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.getElementById('canvas-carimbo');
+          const ctx = canvas.getContext('2d');
+          
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+
+          const scale = canvas.width / 2200;
+          const fontSize = Math.max(10, Math.floor(13 * scale));
+          const padding = Math.max(6, Math.floor(8 * scale));
+          const lineHeight = fontSize + 4;
+          const numLines = 3; 
+          
+          const boxWidth = Math.min(canvas.width * 0.42, Math.floor(360 * scale));
+          const boxHeight = (lineHeight * numLines) + (padding * 2);
+          
+          const boxX = Math.floor(20 * scale);
+          const boxY = canvas.height - boxHeight - Math.floor(20 * scale);
+
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+          ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+
+          ctx.fillStyle = (tipo === 'entrada') ? '#facc15' : '#ef4444';
+          ctx.fillRect(boxX, boxY, Math.max(2, Math.floor(4 * scale)), boxHeight);
+
+          ctx.textAlign = 'left';
+          let currentY = boxY + padding + fontSize - 2;
+
+          if (tipo === 'entrada') {
+            ctx.fillStyle = '#facc15';
+            ctx.font = `bold ${fontSize}px sans-serif`;
+            ctx.fillText(`DOCA: ${docaAlvo}  |  PLACA: ${placaAlvo}`, boxX + padding + 4, currentY);
+            
+            currentY += lineHeight;
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `bold ${fontSize - 1}px sans-serif`;
+            ctx.fillText(`STATUS: CARREGAR / DESCARREGAR`, boxX + padding + 4, currentY);
+          } else {
+            ctx.fillStyle = '#ef4444';
+            ctx.font = `bold ${fontSize}px sans-serif`;
+            ctx.fillText(`DOCA: ${docaAlvo}  |  RETIRADA`, boxX + padding + 4, currentY);
+            
+            currentY += lineHeight;
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `bold ${fontSize - 1}px sans-serif`;
+            ctx.fillText(`PLACA: ${placaAlvo} (LIBERADA)`, boxX + padding + 4, currentY);
+          }
+
+          currentY += lineHeight;
+          ctx.fillStyle = '#d1d5db';
+          ctx.font = `${fontSize - 1}px sans-serif`;
+          ctx.fillText(`DATA/HORA: ${dataHora}`, boxX + padding + 4, currentY);
+
+          const resultadoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+
+          if (tipo === 'entrada') {
+            fotoEntradaBase64 = resultadoBase64;
+            const preview = document.getElementById('preview-entrada');
+            preview.src = resultadoBase64;
+            preview.style.display = 'block';
+            document.getElementById('status-foto-entrada').innerText = '✅ Foto da carreta capturada e carimbada!';
+            document.getElementById('status-foto-entrada').style.display = 'block';
+          } else {
+            fotoSaidaBase64 = resultadoBase64;
+            const preview = document.getElementById('preview-saida');
+            preview.src = resultadoBase64;
+            preview.style.display = 'block';
+            document.getElementById('status-foto-saida').innerText = '✅ Foto de retirada capturada e carimbada!';
+            document.getElementById('status-foto-saida').style.display = 'block';
+            document.getElementById('btn-concluir-liberacao').style.display = 'block';
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function confirmarDocagem(operacao) {
+      const cavalo = document.getElementById('man-cavalo').value;
+      const placa = document.getElementById('man-carreta').value.trim();
+      const doca = document.getElementById('man-doca').value.trim();
+      const operador = document.getElementById('man-operador').value.trim();
+
+      if (!placa || !doca || !operador || !fotoEntradaBase64) {
+        alert('Por favor, preencha todos os campos obrigatórios e tire a foto da carreta!');
+        return;
+      }
+
+      if (!baseCarretas.includes(placa)) {
+        baseCarretas.push(placa);
+        localStorage.setItem('lemar_base_carretas', JSON.stringify(baseCarretas));
+      }
+      if (!baseManobristas.includes(operador)) {
+        baseManobristas.push(operador);
+        localStorage.setItem('lemar_base_manobristas', JSON.stringify(baseManobristas));
+      }
+      atualizarListasDatalist();
+
+      const novaDocagem = {
+        id: Date.now(),
+        cavalo,
+        placa,
+        doca,
+        manobrista: operador,
+        operacao,
+        dataHoraDocagem: new Date().toLocaleString('pt-BR'),
+        timestampDocagem: Date.now(),
+        fotoDoca: fotoEntradaBase64,
+        dataHoraSaida: null,
+        fotoSaida: null
+      };
+
+      carretasAtivas.push(novaDocagem);
+      localStorage.setItem('lemar_ativas', JSON.stringify(carretasAtivas));
+
+      renderizarCarretasAtivas();
+      atualizarDashboard();
+
+      const textoWhats = `🚛 *LEMAR TRANSPORTES - EMBU* \n` +
+                         `📌 *Operação:* Docar p/ ${operacao}\n` +
+                         `🅿️ *Doca:* ${doca}\n` +
+                         `🚘 *Placa:* ${placa}\n` +
+                         `🚜 *Cavalo:* ${cavalo}\n` +
+                         `👤 *Manobrista:* ${operador}\n` +
+                         `⏰ *Horário:* ${novaDocagem.dataHoraDocagem}`;
+
+      const urlWhats = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoWhats)}`;
+      window.open(urlWhats, '_blank');
+
+      document.getElementById('form-docar').reset();
+      document.getElementById('preview-entrada').style.display = 'none';
+      document.getElementById('status-foto-entrada').style.display = 'none';
+      fotoEntradaBase64 = null;
+    }
+
+    function renderizarCarretasAtivas() {
+      const listaAtivas = document.getElementById('lista-ativas');
+      listaAtivas.innerHTML = '';
+
+      if (carretasAtivas.length === 0) {
+        listaAtivas.innerHTML = '<p style="font-size:0.8rem; color:var(--muted); text-align:center; padding:0.5rem;">Nenhuma carreta no momento.</p>';
+        return;
+      }
+
+      carretasAtivas.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = `item-doca ${item.operacao === 'Descarregar' ? 'descarregar' : ''}`;
+        
+        const textoWhatsItem = `🚛 LEMAR - Embu\nPlaca: ${item.placa}\nDoca: ${item.doca}\nOperação: ${item.operacao}\nCavalo: ${item.cavalo}\nManobrista: ${item.manobrista}`;
+        const urlWhatsItem = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoWhatsItem)}`;
+
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.4rem;">
+            <div>
+              <span style="font-weight:bold;">Doca: ${item.doca}</span> - 
+              <button type="button" class="btn-placa-foto" onclick="verImagemModal('${item.fotoDoca}')">
+                🚛 ${item.placa}
+              </button>
+            </div>
+            <span class="badge-tipo badge-${item.operacao.toLowerCase()}">${item.operacao}</span>
+          </div>
+          <div style="font-size:0.8rem; color:var(--muted); margin-bottom: 0.6rem;">
+            Cavalo: <b>${item.cavalo}</b> | Manobrista: <b>${item.manobrista}</b><br>
+            Docagem: ${item.dataHoraDocagem}
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <button type="button" class="btn btn-liberar" onclick="abrirModalLiberar(${index})">
+              📸 Liberar Doca
+            </button>
+            <a href="${urlWhatsItem}" target="_blank" class="btn-whats-item">💬 Whats</a>
+          </div>
+        `;
+        listaAtivas.appendChild(div);
+      });
+    }
+
+    function abrirModalLiberar(index) {
+      indiceCarretaLiberando = index;
+      fotoSaidaBase64 = null;
+      document.getElementById('preview-saida').style.display = 'none';
+      document.getElementById('status-foto-saida').style.display = 'none';
+      document.getElementById('btn-concluir-liberacao').style.display = 'none';
+      document.getElementById('foto-saida').value = '';
+      document.getElementById('modal-liberar').style.display = 'flex';
+    }
+
+    function fecharModalLiberar() {
+      document.getElementById('modal-liberar').style.display = 'none';
+      indiceCarretaLiberando = null;
+    }
+
+    function concluirLiberacao() {
+      if (indiceCarretaLiberando === null || !fotoSaidaBase64) {
+        alert('É obrigatório tirar a foto da liberação/retirada!');
+        return;
+      }
+
+      const carreta = carretasAtivas[indiceCarretaLiberando];
+      const agora = new Date();
+      const dataHoraSaida = agora.toLocaleString('pt-BR');
+      
+      const diffMs = agora - carreta.timestampDocagem;
+      const diffHrs = Math.floor(diffMs / 3600000);
+      const diffMins = Math.floor((diffMs % 3600000) / 60000);
+      const tempoPermanencia = `${diffHrs}h ${diffMins}m`;
+
+      carreta.dataHoraSaida = dataHoraSaida;
+      carreta.fotoSaida = fotoSaidaBase64;
+      carreta.tempoPermanencia = tempoPermanencia;
+
+      historicoDocas.unshift(carreta);
+      localStorage.setItem('lemar_historico', JSON.stringify(historicoDocas));
+
+      carretasAtivas.splice(indiceCarretaLiberando, 1);
+      localStorage.setItem('lemar_ativas', JSON.stringify(carretasAtivas));
+
+      renderizarCarretasAtivas();
+      renderizarPlanilhaRelatorio();
+      atualizarDashboard();
+      fecharModalLiberar();
+
+      alert('Doca liberada com sucesso e registrada na planilha!');
+    }
+
+    function atualizarDashboard() {
+      const todasMovimentacoes = [...carretasAtivas, ...historicoDocas];
+      const totalGeral = todasMovimentacoes.length;
+
+      if (totalGeral === 0) {
+        document.getElementById('dash-top-manobrista').innerText = 'Nenhum registro';
+        document.getElementById('dash-top-carreta').innerText = 'Nenhum registro';
+        document.getElementById('dash-pico-horario').innerText = 'Nenhum registro';
+        return;
+      }
+
+      const contManobristas = {};
+      const contCarretas = {};
+      const contSemanas = {};
+
+      todasMovimentacoes.forEach(item => {
+        if (item.manobrista) {
+          contManobristas[item.manobrista] = (contManobristas[item.manobrista] || 0) + 1;
+        }
+        if (item.placa) {
+          contCarretas[item.placa] = (contCarretas[item.placa] || 0) + 1;
+        }
+        if (item.dataHoraDocagem) {
+          const partesData = item.dataHoraDocagem.split(' ')[0].split('/');
+          if (partesData.length === 3) {
+            const dataObj = new Date(`${partesData[2]}-${partesData[1]}-${partesData[0]}`);
+            const inicioAno = new Date(dataObj.getFullYear(), 0, 1);
+            const numeroSemana = Math.ceil(((dataObj - inicioAno) / 86400000 + inicioAno.getDay() + 1) / 7);
+            const chaveSemana = `Semana ${numeroSemana} (${dataObj.getFullYear()})`;
+            contSemanas[chaveSemana] = (contSemanas[chaveSemana] || 0) + 1;
+          }
+        }
+      });
+
+      let topManobrista = '-';
+      let maxManobristaCount = 0;
+      for (let m in contManobristas) {
+        if (contManobristas[m] > maxManobristaCount) {
+          maxManobristaCount = contManobristas[m];
+          const pct = ((maxManobristaCount / totalGeral) * 100).toFixed(1);
+          topManobrista = `${m} (${pct}% - ${maxManobristaCount}x)`;
+        }
+      }
+
+      let topCarreta = '-';
+      let maxCarretaCount = 0;
+      for (let c in contCarretas) {
+        if (contCarretas[c] > maxCarretaCount) {
+          maxCarretaCount = contCarretas[c];
+          const pct = ((maxCarretaCount / totalGeral) * 100).toFixed(1);
+          topCarreta = `${c} (${pct}% - ${maxCarretaCount}x)`;
+        }
+      }
+
+      let textoSemanas = [];
+      for (let s in contSemanas) {
+        const qtd = contSemanas[s];
+        const pct = ((qtd / totalGeral) * 100).toFixed(1);
+        textoSemanas.push(`${s}: ${pct}% (${qtd} mov.)`);
+      }
+
+      document.getElementById('dash-top-manobrista').innerText = topManobrista;
+      document.getElementById('dash-top-carreta').innerText = topCarreta;
+      document.getElementById('dash-pico-horario').innerHTML = textoSemanas.length > 0 ? textoSemanas.join('<br>') : 'Nenhum registro';
+    }
+
+    function renderizarPlanilhaRelatorio() {
+      const tbody = document.querySelector('#tbl-relatorio tbody');
+      tbody.innerHTML = '';
+
+      if (historicoDocas.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:var(--muted);">Nenhum registro de liberação encontrado.</td></tr>`;
+        return;
+      }
+
+      historicoDocas.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><b>${item.placa}</b></td>
+          <td>${item.doca}</td>
+          <td><span class="badge-tipo badge-${item.operacao.toLowerCase()}">${item.operacao}</span></td>
+          <td>${item.dataHoraDocagem}</td>
+          <td><button class="btn-link-foto" onclick="verImagemModal('${item.fotoDoca}')">Ver Foto</button></td>
+          <td>${item.dataHoraSaida || '-'}</td>
+          <td>${item.fotoSaida ? `<button class="btn-link-foto" onclick="verImagemModal('${item.fotoSaida}')">Ver Foto</button>` : '-'}</td>
+          <td>${item.tempoPermanencia || 'Em andamento'}</td>
+          <td>${item.cavalo}</td>
+          <td>${item.manobrista}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function baixarPlanilhaExcel() {
+      if (historicoDocas.length === 0) {
+        alert('Não há dados para exportar.');
+        return;
+      }
+
+      let csv = 'Placa,Doca,Operacao,DataHoraDocagem,DataHoraSaida,TempoPermanencia,Cavalo,Manobrista\n';
+      historicoDocas.forEach(i => {
+        csv += `"${i.placa}","${i.doca}","${i.operacao}","${i.dataHoraDocagem}","${i.dataHoraSaida || ''}","${i.tempoPermanencia || ''}","${i.cavalo}","${i.manobrista}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `lemar_docagem_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    function cadastrarCarretaManual(e) {
+      e.preventDefault();
+      const input = document.getElementById('nova-carreta-placa');
+      const placa = input.value.trim().toUpperCase();
+      if (placa && !baseCarretas.includes(placa)) {
+        baseCarretas.push(placa);
+        localStorage.setItem('lemar_base_carretas', JSON.stringify(baseCarretas));
+        input.value = '';
+        renderizarBasesCadastros();
+        atualizarListasDatalist();
+        alert('Carreta cadastrada com sucesso!');
+      }
+    }
+
+    function cadastrarManobristaManual(e) {
+      e.preventDefault();
+      const input = document.getElementById('novo-manobrista-nome');
+      const nome = input.value.trim();
+      if (nome && !baseManobristas.includes(nome)) {
+        baseManobristas.push(nome);
+        localStorage.setItem('lemar_base_manobristas', JSON.stringify(baseManobristas));
+        input.value = '';
+        renderizarBasesCadastros();
+        atualizarListasDatalist();
+        alert('Manobrista cadastrado com sucesso!');
+      }
+    }
+
+    function renderizarBasesCadastros() {
+      const divCarretas = document.getElementById('lista-carretas-base');
+      divCarretas.innerHTML = baseCarretas.map((c, idx) => `
+        <div class="tag-item">
+          <span>🚛 ${c}</span>
+          <button class="btn-del-tag" onclick="removerCarreta(${idx})">&times;</button>
+        </div>
+      `).join('');
+
+      const divManobristas = document.getElementById('lista-manobristas-base');
+      divManobristas.innerHTML = baseManobristas.map((m, idx) => `
+        <div class="tag-item">
+          <span>👤 ${m}</span>
+          <button class="btn-del-tag" onclick="removerManobrista(${idx})">&times;</button>
+        </div>
+      `).join('');
+    }
+
+    function removerCarreta(idx) {
+      baseCarretas.splice(idx, 1);
+      localStorage.setItem('lemar_base_carretas', JSON.stringify(baseCarretas));
+      renderizarBasesCadastros();
+      atualizarListasDatalist();
+    }
+
+    function removerManobrista(idx) {
+      baseManobristas.splice(idx, 1);
+      localStorage.setItem('lemar_base_manobristas', JSON.stringify(baseManobristas));
+      renderizarBasesCadastros();
+      atualizarListasDatalist();
+    }
+
+    function verImagemModal(src) {
+      document.getElementById('img-ampliada').src = src;
+      document.getElementById('modal-foto').style.display = 'flex';
+    }
+
+    function fecharModalFoto() {
+      document.getElementById('modal-foto').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
